@@ -1,0 +1,940 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Nexora</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: phone-first single column, a hero panel for the AI match, a floating tab bar. Plum and coral from the pitch deck. */
+:root {
+  --bg: #f4f8f5; --surface: #ffffff; --ink: #14292a; --muted: #5a7172; --line: #d9e7e3;
+  --primary: #0e4d52; --on-primary: #ffffff; --tint: #e0efec; --accent: #f5a623; --accent-ink: #8a5200;
+  --good: #17704a; --good-bg: #dcf2e6; --warn: #8a5a00; --warn-bg: #fff0cc;
+  --hero-bg: #0b3d41; --hero-ink: #f4fbfa; --glow-a: rgba(245,166,35,.16); --glow-b: rgba(14,77,82,.12);
+  --shadow: 0 1px 2px rgba(11,61,65,.06), 0 14px 34px -14px rgba(11,61,65,.22);
+  --display: "Fraunces", Cambria, Georgia, serif;
+  --body: "Source Sans 3", Calibri, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #061619; --surface: #0d2226; --ink: #e8f6f4; --muted: #9dbdb9; --line: #1d3c41;
+    --primary: #7fd6cc; --on-primary: #06201f; --tint: #16363a; --accent: #ffbe4d; --accent-ink: #ffd27a;
+    --good: #7fe0b0; --good-bg: #16382c; --warn: #ffd77a; --warn-bg: #3d2f10;
+    --hero-bg: #0a2e33; --hero-ink: #eafaf7; --glow-a: rgba(255,190,77,.12); --glow-b: rgba(127,214,204,.08);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px -16px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #061619; --surface: #0d2226; --ink: #e8f6f4; --muted: #9dbdb9; --line: #1d3c41;
+  --primary: #7fd6cc; --on-primary: #06201f; --tint: #16363a; --accent: #ffbe4d; --accent-ink: #ffd27a;
+  --good: #7fe0b0; --good-bg: #16382c; --warn: #ffd77a; --warn-bg: #3d2f10;
+  --hero-bg: #0a2e33; --hero-ink: #eafaf7; --glow-a: rgba(255,190,77,.12); --glow-b: rgba(127,214,204,.08);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px -16px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100%; color: var(--ink); font: 400 16px/1.5 var(--body); -webkit-font-smoothing: antialiased;
+  background: radial-gradient(900px 520px at 92% -12%, var(--glow-a), transparent 62%), radial-gradient(760px 520px at -12% 8%, var(--glow-b), transparent 60%), var(--bg);
+  padding-block: 0 110px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 760px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; line-height: 1.1; color: var(--primary); letter-spacing: -.015em; }
+h2 { font-size: 30px; font-weight: 700; } h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px 10px; background: var(--bg); flex-wrap: wrap; row-gap: 6px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 30px; color: var(--primary); letter-spacing: -.02em; display: inline-flex; align-items: center; }
+.brand::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(245,166,35,.18); margin-right: 10px; }
+.brand span { color: var(--accent); }
+.lang { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+.lang button { border: 0; background: none; padding: 7px 13px; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--muted); min-height: 36px; }
+.lang button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+
+main { display: flex; flex-direction: column; gap: 20px; padding-block: 8px 28px; }
+main.enter > * { animation: rise .55s cubic-bezier(.2,.7,.2,1) both; }
+main.enter > :nth-child(2) { animation-delay: .06s; } main.enter > :nth-child(3) { animation-delay: .12s; } main.enter > :nth-child(n+4) { animation-delay: .18s; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { main > * { animation: none; } }
+
+.card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 22px; box-shadow: var(--shadow); min-width: 0; transition: transform .25s ease, box-shadow .25s ease; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .card:hover { transform: translateY(-2px); } }
+.hero { background: var(--hero-bg); color: var(--hero-ink); border-color: transparent; padding: 26px; overflow: hidden; }
+.hero::after { content: ""; position: absolute; width: 300px; height: 300px; right: -120px; top: -130px; border-radius: 50%; background: radial-gradient(circle, rgba(245,166,35,.6), rgba(245,166,35,0) 68%); pointer-events: none; }
+.hero > * { position: relative; }
+.hero h2, .hero h3 { color: var(--hero-ink); }
+.hero .muted, .hero .label { color: rgba(251,243,255,.8); }
+.hero textarea { background: rgba(255,255,255,.09); color: var(--hero-ink); border-color: rgba(255,255,255,.24); min-height: 116px; font-size: 17px; }
+.hero textarea::placeholder { color: rgba(251,243,255,.55); }
+.hero .btn { background: var(--accent); color: #3a2300; box-shadow: 0 10px 24px -10px rgba(245,166,35,.9); }
+.hero .chips .pill { background: rgba(255,255,255,.14); color: var(--hero-ink); }
+.hero .chips .pill.good { background: rgba(127,224,176,.22); color: #c9f5de; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+.grid2 { display: grid; gap: 18px; grid-template-columns: 1fr; }
+@media (min-width: 720px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+
+.btn { border: 0; border-radius: 14px; padding: 12px 20px; font-weight: 700; cursor: pointer; background: var(--primary); color: var(--on-primary); min-height: 46px; box-shadow: 0 10px 22px -12px var(--primary); transition: transform .15s ease, filter .15s ease; }
+.btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.btn:active { transform: scale(.98); }
+.btn.ghost { background: transparent; color: var(--primary); border: 1.5px solid var(--line); box-shadow: none; }
+.btn.small { min-height: 38px; padding: 7px 14px; font-size: 14px; border-radius: 12px; }
+.btn[disabled] { opacity: .6; cursor: default; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: var(--tint); color: var(--primary); }
+.pill.good { background: var(--good-bg); color: var(--good); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.accent { background: transparent; border: 1px solid var(--accent); color: var(--accent-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--ink); min-height: 38px; transition: background .15s ease; }
+.chip:hover { background: var(--tint); }
+.chip[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+
+.score { --p: 80; width: 66px; height: 66px; border-radius: 50%; flex: none; display: grid; place-items: center; background: conic-gradient(var(--accent) calc(var(--p) * 1%), var(--line) 0); position: relative; }
+.score::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--surface); }
+.score b { position: relative; font-family: var(--display); font-size: 17px; font-variant-numeric: tabular-nums; color: var(--primary); }
+.amount { font-family: var(--display); font-weight: 700; font-size: 20px; color: var(--ink); }
+.inv-amt { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: -.01em; color: var(--primary); font-variant-numeric: tabular-nums; }
+.inv-card { border-radius: 22px; }
+
+form.stack label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; }
+input[type=text], input[type=number], select, textarea { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--bg); min-height: 46px; width: 100%; transition: border-color .15s ease; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+textarea { resize: vertical; min-height: 92px; }
+
+nav.tabs { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(calc(100% - 20px), 620px); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow); padding: 6px; z-index: 5; }
+nav.tabs .in { display: flex; gap: 4px; }
+nav.tabs a { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 1px; text-decoration: none; color: var(--muted); font-size: 11px; font-weight: 700; border-radius: 18px; transition: background .2s ease, color .2s ease; }
+nav.tabs a svg { width: 22px; height: 22px; }
+nav.tabs a[aria-current="page"] { color: var(--on-primary); background: var(--primary); }
+nav.tabs a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ring { width: 110px; height: 110px; flex: none; }
+.ring text { fill: var(--primary); font-family: var(--display); font-weight: 700; font-size: 22px; }
+.ms { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ms:last-child { border-bottom: 0; }
+.dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; flex: none; }
+.dot.on { background: var(--good); border-color: var(--good); color: #fff; }
+.dot svg { width: 13px; height: 13px; }
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (min-width: 560px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat b { display: block; font-family: var(--display); font-size: 26px; line-height: 1.15; color: var(--primary); font-variant-numeric: tabular-nums; }
+.slots { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 4px; }
+.post .reply { border-left: 3px solid var(--line); padding-left: 12px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(100px + env(safe-area-inset-bottom, 0px)); background: var(--primary); color: var(--on-primary); padding: 12px 18px; border-radius: 16px; font-weight: 700; z-index: 9; box-shadow: var(--shadow); max-width: calc(100% - 32px); }
+.note { font-size: 13px; color: var(--muted); }
+.art { display: block; width: 100%; height: auto; max-width: 100%; border-radius: 20px; margin-bottom: 16px; box-shadow: 0 18px 40px -22px rgba(0,0,0,.45); }
+.hero .art { border-radius: 16px; margin: -6px 0 18px; }
+.avatar { width: 52px; height: 52px; border-radius: 18px; flex: none; display: grid; place-items: center; background: var(--primary); color: var(--on-primary); font-family: var(--display); font-weight: 700; font-size: 18px; box-shadow: 0 10px 20px -12px var(--primary); }
+.chk-row { border-bottom: 1px solid var(--line); }
+.chk-row:last-child { border-bottom: 0; }
+.chk { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; background: none; border: 0; padding: 14px 0 10px; cursor: pointer; color: var(--ink); }
+.chk .dot { margin-top: 2px; }
+.ext { display: inline-block; margin: 0 0 12px 36px; color: var(--primary); font-weight: 700; }
+.split { height: 12px; border-radius: 999px; background: var(--accent); overflow: hidden; }
+.split span { display: block; height: 100%; background: var(--primary); border-radius: 999px; }
+details.card summary { cursor: pointer; font-family: var(--display); font-size: 19px; font-weight: 600; color: var(--primary); list-style-position: inside; }
+details.card ol { margin: 14px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+.role-card { display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; cursor: pointer; font: inherit; color: var(--ink); }
+.role-ic { width: 58px; height: 58px; border-radius: 20px; background: var(--primary); color: var(--on-primary); display: grid; place-items: center; flex: none; box-shadow: 0 12px 24px -14px var(--primary); }
+.role-ic svg { width: 28px; height: 28px; }
+.role-btn { min-height: 36px; padding: 6px 12px; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.facts div { background: var(--tint); border-radius: 14px; padding: 10px 12px; min-width: 0; }
+.facts b { display: block; font-family: var(--display); font-size: 16px; color: var(--primary); font-variant-numeric: tabular-nums; }
+.facts span { font-size: 12px; color: var(--muted); }
+.bar-item { display: flex; flex-direction: column; gap: 6px; }
+.bar-track { height: 12px; border-radius: 999px; background: var(--tint); overflow: hidden; }
+.bar-track span { display: block; height: 100%; background: var(--primary); border-radius: 999px; }
+.stagebar { display: flex; height: 16px; border-radius: 999px; overflow: hidden; background: var(--tint); }
+.stagebar span { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.tbl-wrap { overflow-x: auto; max-width: 100%; border: 1px solid var(--line); border-radius: 16px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.wide { min-width: 640px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+td, th { white-space: nowrap; }
+th { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--tint); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.insight { display: flex; gap: 12px; align-items: flex-start; }
+.insight .dot { margin-top: 2px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Nex<span>o</span>ra</div>
+    <div id="role"></div>
+    <div class="lang" role="group" aria-label="Language" id="lang"></div>
+  </header>
+  <main id="app"></main>
+</div>
+<nav class="tabs" id="tabs" aria-label="Main"><div class="in"></div></nav>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+  /* ---------- text in three languages ---------- */
+  var T = {
+    en: { matches: 'Matches', mentors: 'Mentors', market: 'Market', progress: 'Progress', community: 'Forum', toolkit: 'Toolkit', deals: 'Deals', shortlist: 'Shortlist', invprofile: 'Profile', overview: 'Overview', explore: 'Explore', compare: 'Compare', hello: 'Hello', best: 'Funding matched to you', apply: 'Apply', applied: 'Applied', withdraw: 'Withdraw', book: 'Book a call', booked: 'Booked', create: 'Create my profile', list: 'List product', post: 'Post', mentorsHead: 'Mentors for your business', marketHead: 'Sell beyond your town', progHead: 'Your growth so far', commHead: 'Founder community' },
+    hi: { matches: 'मैच', mentors: 'मेंटर', market: 'बाज़ार', progress: 'प्रगति', community: 'समुदाय', toolkit: 'टूलकिट', hello: 'नमस्ते', best: 'आपके लिए चुनी गई फंडिंग', apply: 'आवेदन करें', applied: 'आवेदन किया', withdraw: 'वापस लें', book: 'कॉल बुक करें', booked: 'बुक हो गया', create: 'प्रोफ़ाइल बनाएँ', list: 'उत्पाद जोड़ें', post: 'पोस्ट करें', mentorsHead: 'आपके व्यवसाय के लिए मेंटर', marketHead: 'अपने शहर से बाहर बेचें', progHead: 'अब तक की आपकी प्रगति', commHead: 'महिला उद्यमी समुदाय' },
+    ta: { matches: 'பொருத்தங்கள்', mentors: 'வழிகாட்டிகள்', market: 'சந்தை', progress: 'முன்னேற்றம்', community: 'சமூகம்', toolkit: 'கருவிகள்', hello: 'வணக்கம்', best: 'உங்களுக்குப் பொருந்தும் நிதி', apply: 'விண்ணப்பிக்க', applied: 'விண்ணப்பித்தது', withdraw: 'திரும்பப் பெறு', book: 'அழைப்பை பதிவு செய்', booked: 'பதிவானது', create: 'சுயவிவரம் உருவாக்கு', list: 'பொருளைச் சேர்', post: 'பதிவிடு', mentorsHead: 'உங்கள் தொழிலுக்கான வழிகாட்டிகள்', marketHead: 'உங்கள் ஊருக்கு வெளியே விற்கவும்', progHead: 'இதுவரை உங்கள் வளர்ச்சி', commHead: 'பெண் தொழில்முனைவோர் சமூகம்' }
+  };
+  var SECTORS = ['Food processing', 'Handicrafts and textiles', 'Agri-business', 'Retail and e-commerce', 'Education and skilling', 'Health and wellness', 'Technology services', 'Beauty and personal care'];
+  var STAGES = ['Idea', 'Early revenue', 'Growing', 'Scaling'];
+  var STATES = ['Tamil Nadu', 'Karnataka', 'Kerala', 'Telangana', 'Maharashtra', 'Gujarat', 'Rajasthan', 'Uttar Pradesh', 'West Bengal', 'Other'];
+
+  var FUNDING = [
+    { id: 'mudra', name: 'Mudra loan (PMMY)', body: 'Government of India', type: 'Loan', amount: 'Up to ₹10 lakh', sectors: 'any', stages: ['Idea', 'Early revenue', 'Growing'], states: 'all', desc: 'Collateral-free working capital and term loans for small businesses.' },
+    { id: 'standup', name: 'Stand-Up India', body: 'SIDBI and scheduled banks', type: 'Loan', amount: '₹10 lakh to ₹1 crore', sectors: 'any', stages: ['Idea', 'Early revenue'], states: 'all', desc: 'Bank loans for women setting up a new manufacturing, services or trading unit.' },
+    { id: 'pmfme', name: 'PM Formalisation of Micro Food Enterprises', body: 'Ministry of Food Processing', type: 'Subsidy', amount: '35% subsidy, up to ₹10 lakh', sectors: ['Food processing'], stages: ['Early revenue', 'Growing'], states: 'all', desc: 'Credit-linked subsidy to upgrade or formalise a micro food unit.' },
+    { id: 'seed', name: 'Startup India Seed Fund', body: 'DPIIT', type: 'Seed', amount: 'Up to ₹50 lakh', sectors: ['Technology services', 'Health and wellness', 'Education and skilling', 'Agri-business'], stages: ['Idea', 'Early revenue'], states: 'all', desc: 'Seed funding for proof of concept, prototypes and market entry, routed through incubators.' },
+    { id: 'artisan', name: 'State artisan support grant', body: 'State handloom and handicrafts boards', type: 'Grant', amount: 'Up to ₹2 lakh', sectors: ['Handicrafts and textiles'], stages: ['Early revenue', 'Growing'], states: ['Tamil Nadu', 'Kerala', 'Karnataka', 'Rajasthan', 'West Bengal', 'Gujarat'], desc: 'Tools, design and exhibition support for registered artisans.', sample: true },
+    { id: 'csr', name: 'CSR women founders growth grant', body: 'Partner corporate foundations', type: 'Grant', amount: '₹1 to ₹5 lakh', sectors: 'any', stages: ['Growing', 'Scaling'], states: 'all', desc: 'Growth grants from corporate social responsibility partners.', sample: true }
+  ];
+  var MENTORS = [
+    { id: 'm1', name: 'Kavitha Raman', role: 'Former quality lead, packaged foods', sectors: ['Food processing', 'Agri-business'], langs: ['ta', 'en'], slots: ['Mon 6:00 pm', 'Wed 7:30 pm', 'Sat 11:00 am'] },
+    { id: 'm2', name: 'Anjali Deshmukh', role: 'Marketplace seller trainer', sectors: ['Retail and e-commerce', 'Handicrafts and textiles'], langs: ['hi', 'en'], slots: ['Tue 5:30 pm', 'Thu 6:30 pm', 'Sun 10:00 am'] },
+    { id: 'm3', name: 'Lakshmi Narayanan', role: 'Retired bank manager, small business loans', sectors: SECTORS, langs: ['ta', 'en'], slots: ['Mon 4:00 pm', 'Fri 5:00 pm', 'Sat 3:00 pm'] },
+    { id: 'm4', name: 'Farah Siddiqui', role: 'Founder, ed-tech start-up', sectors: ['Technology services', 'Education and skilling'], langs: ['hi', 'en'], slots: ['Wed 8:00 pm', 'Sat 9:30 am'] },
+    { id: 'm5', name: 'Priya Nair', role: 'Wellness brand owner', sectors: ['Health and wellness', 'Beauty and personal care'], langs: ['en'], slots: ['Tue 7:00 pm', 'Thu 7:00 pm', 'Sun 4:00 pm'] },
+    { id: 'm6', name: 'Rukmini Patel', role: 'Textile exporter', sectors: ['Handicrafts and textiles', 'Retail and e-commerce'], langs: ['hi', 'en'], slots: ['Mon 11:00 am', 'Wed 4:30 pm', 'Fri 11:30 am'] }
+  ];
+  var CHANNELS = [
+    { id: 'store', name: 'Nexora storefront', reach: 'Your district', fixed: true },
+    { id: 'haat', name: 'Local haat map', reach: 'Nearby towns' },
+    { id: 'ondc', name: 'ONDC network', reach: 'Across India' },
+    { id: 'gem', name: 'GeM seller listing', reach: 'Government buyers' }
+  ];
+  var TAGS = ['Funding', 'Mentors', 'Selling', 'Skills'];
+  /* Keywords that map a founder's idea to sectors. A trailing * matches word endings. */
+  var THEMES = {
+    'Food processing': ['food*', 'millet*', 'pickle*', 'snack*', 'cookie*', 'biscuit*', 'bakery', 'spice*', 'masala*', 'sweets', 'tiffin*', 'catering', 'jam', 'flour'],
+    'Handicrafts and textiles': ['handloom*', 'saree*', 'sari*', 'craft*', 'handicraft*', 'embroider*', 'textile*', 'weav*', 'fabric*', 'garment*', 'stitch*', 'tailor*', 'pottery', 'jewel*', 'handmade', 'kurti*', 'block print*'],
+    'Agri-business': ['farm*', 'agri*', 'crop*', 'dairy', 'poultry', 'vegetable*', 'fruit*', 'seed*', 'fishery', 'honey', 'cattle', 'paddy'],
+    'Retail and e-commerce': ['shop*', 'store*', 'retail*', 'online', 'e-commerce', 'ecommerce', 'marketplace*', 'sell*', 'reseller*', 'resell*', 'boutique*'],
+    'Education and skilling': ['tutor*', 'tuition*', 'course*', 'training', 'skill*', 'learning', 'coaching', 'teach*', 'edtech', 'tutoring'],
+    'Health and wellness': ['clinic*', 'health*', 'wellness', 'yoga', 'fitness', 'therapy', 'nutrition*', 'diagnostic*', 'medical', 'elder care', 'childcare'],
+    'Technology services': ['software', 'saas', 'app', 'apps', 'platform*', 'website*', 'data', 'digital', 'automation', 'tech', 'it services'],
+    'Beauty and personal care': ['salon*', 'beauty', 'cosmetic*', 'skincare', 'soap*', 'herbal', 'spa', 'makeup', 'hair', 'bridal', 'personal care']
+  };
+  var SEED_POSTS = [
+    { id: 'p1', author: 'Sunita, Pune', tag: 'Funding', text: 'Has anyone received a Mudra loan without a guarantor? Which documents did the bank ask for?', likes: 6, replies: [{ author: 'Revathi, Madurai', text: 'Aadhaar, a simple business proof and a two-page plan. Ask for the Shishu category first.' }] },
+    { id: 'p2', author: 'Deepa, Kochi', tag: 'Selling', text: 'My pickles sell well locally. Where do I start with online orders and packaging?', likes: 9, replies: [] },
+    { id: 'p3', author: 'Nazia, Jaipur', tag: 'Skills', text: 'Looking for a free course on basic bookkeeping in Hindi. Any suggestions?', likes: 4, replies: [] }
+  ];
+
+  /* ---------- illustrations (inline SVG, no external files) ---------- */
+  function svgUri(x) { return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(x); }
+  var IMG = {
+    hero: svgUri("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 420\"><rect width=\"800\" height=\"420\" fill=\"#0b3d41\"/><circle cx=\"610\" cy=\"150\" r=\"78\" fill=\"#f5a623\"/><circle cx=\"610\" cy=\"150\" r=\"112\" fill=\"none\" stroke=\"#f5a623\" stroke-opacity=\".35\" stroke-width=\"2\"/><circle cx=\"610\" cy=\"150\" r=\"150\" fill=\"none\" stroke=\"#f5a623\" stroke-opacity=\".15\" stroke-width=\"2\"/><path d=\"M0 300 Q150 220 300 280 T600 260 T800 240 V420 H0Z\" fill=\"#0e5a5f\"/><path d=\"M0 340 Q200 280 400 330 T800 320 V420 H0Z\" fill=\"#0a4449\"/><polyline points=\"90,300 210,250 320,270 440,190 560,205 700,110\" fill=\"none\" stroke=\"#ffbe4d\" stroke-width=\"9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"90\" cy=\"300\" r=\"12\" fill=\"#ffffff\" stroke=\"#0b3d41\" stroke-width=\"5\"/><circle cx=\"210\" cy=\"250\" r=\"12\" fill=\"#ffffff\" stroke=\"#0b3d41\" stroke-width=\"5\"/><circle cx=\"320\" cy=\"270\" r=\"12\" fill=\"#ffffff\" stroke=\"#0b3d41\" stroke-width=\"5\"/><circle cx=\"440\" cy=\"190\" r=\"12\" fill=\"#ffffff\" stroke=\"#0b3d41\" stroke-width=\"5\"/><circle cx=\"560\" cy=\"205\" r=\"12\" fill=\"#ffffff\" stroke=\"#0b3d41\" stroke-width=\"5\"/><circle cx=\"700\" cy=\"110\" r=\"12\" fill=\"#ffffff\" stroke=\"#0b3d41\" stroke-width=\"5\"/></svg>"),
+    market: svgUri("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 420\"><rect width=\"800\" height=\"420\" fill=\"#fdf1d6\"/><rect x=\"0.0\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#0e4d52\"/><circle cx=\"33.3\" cy=\"150\" r=\"33.3\" fill=\"#0e4d52\"/><rect x=\"66.7\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#fff8ea\"/><circle cx=\"100.0\" cy=\"150\" r=\"33.3\" fill=\"#fff8ea\"/><rect x=\"133.3\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#0e4d52\"/><circle cx=\"166.7\" cy=\"150\" r=\"33.3\" fill=\"#0e4d52\"/><rect x=\"200.0\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#fff8ea\"/><circle cx=\"233.3\" cy=\"150\" r=\"33.3\" fill=\"#fff8ea\"/><rect x=\"266.7\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#0e4d52\"/><circle cx=\"300.0\" cy=\"150\" r=\"33.3\" fill=\"#0e4d52\"/><rect x=\"333.3\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#fff8ea\"/><circle cx=\"366.7\" cy=\"150\" r=\"33.3\" fill=\"#fff8ea\"/><rect x=\"400.0\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#0e4d52\"/><circle cx=\"433.3\" cy=\"150\" r=\"33.3\" fill=\"#0e4d52\"/><rect x=\"466.7\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#fff8ea\"/><circle cx=\"500.0\" cy=\"150\" r=\"33.3\" fill=\"#fff8ea\"/><rect x=\"533.3\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#0e4d52\"/><circle cx=\"566.7\" cy=\"150\" r=\"33.3\" fill=\"#0e4d52\"/><rect x=\"600.0\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#fff8ea\"/><circle cx=\"633.3\" cy=\"150\" r=\"33.3\" fill=\"#fff8ea\"/><rect x=\"666.7\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#0e4d52\"/><circle cx=\"700.0\" cy=\"150\" r=\"33.3\" fill=\"#0e4d52\"/><rect x=\"733.3\" y=\"40\" width=\"66.7\" height=\"110\" fill=\"#fff8ea\"/><circle cx=\"766.7\" cy=\"150\" r=\"33.3\" fill=\"#fff8ea\"/><rect x=\"80\" y=\"260\" width=\"640\" height=\"160\" rx=\"10\" fill=\"#0e4d52\"/><rect x=\"130\" y=\"190\" width=\"58\" height=\"70\" rx=\"14\" fill=\"#f5a623\"/><rect x=\"130\" y=\"176\" width=\"58\" height=\"18\" rx=\"6\" fill=\"#fff8ea\"/><rect x=\"230\" y=\"190\" width=\"58\" height=\"70\" rx=\"14\" fill=\"#e77b5f\"/><rect x=\"230\" y=\"176\" width=\"58\" height=\"18\" rx=\"6\" fill=\"#fff8ea\"/><rect x=\"330\" y=\"190\" width=\"58\" height=\"70\" rx=\"14\" fill=\"#7fd6cc\"/><rect x=\"330\" y=\"176\" width=\"58\" height=\"18\" rx=\"6\" fill=\"#fff8ea\"/><rect x=\"430\" y=\"190\" width=\"58\" height=\"70\" rx=\"14\" fill=\"#f5a623\"/><rect x=\"430\" y=\"176\" width=\"58\" height=\"18\" rx=\"6\" fill=\"#fff8ea\"/><rect x=\"530\" y=\"190\" width=\"58\" height=\"70\" rx=\"14\" fill=\"#2f9e7a\"/><rect x=\"530\" y=\"176\" width=\"58\" height=\"18\" rx=\"6\" fill=\"#fff8ea\"/><rect x=\"630\" y=\"190\" width=\"58\" height=\"70\" rx=\"14\" fill=\"#ffbe4d\"/><rect x=\"630\" y=\"176\" width=\"58\" height=\"18\" rx=\"6\" fill=\"#fff8ea\"/><rect x=\"470\" y=\"150\" width=\"34\" height=\"112\" rx=\"4\" fill=\"#e77b5f\"/><rect x=\"514\" y=\"150\" width=\"34\" height=\"112\" rx=\"4\" fill=\"#7fd6cc\"/><rect x=\"558\" y=\"150\" width=\"34\" height=\"112\" rx=\"4\" fill=\"#ffbe4d\"/><rect x=\"602\" y=\"150\" width=\"34\" height=\"112\" rx=\"4\" fill=\"#2f9e7a\"/></svg>"),
+    sprout: svgUri("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 300\"><rect width=\"800\" height=\"300\" fill=\"#e2f0ee\"/><rect y=\"250\" width=\"800\" height=\"50\" fill=\"#cfe6e1\"/><path d=\"M340 200 L460 200 L445 268 L355 268Z\" fill=\"#c46b3c\"/><rect x=\"332\" y=\"194\" width=\"136\" height=\"16\" rx=\"6\" fill=\"#a9552a\"/><line x1=\"400\" y1=\"194\" x2=\"400\" y2=\"108\" stroke=\"#2f9e7a\" stroke-width=\"8\" stroke-linecap=\"round\"/><ellipse cx=\"366\" cy=\"128\" rx=\"40\" ry=\"18\" transform=\"rotate(-25 366 128)\" fill=\"#2f9e7a\"/><ellipse cx=\"436\" cy=\"108\" rx=\"42\" ry=\"18\" transform=\"rotate(25 436 108)\" fill=\"#7fd6cc\"/><circle cx=\"170\" cy=\"236\" r=\"26\" fill=\"#f5a623\" stroke=\"#c77d0a\" stroke-width=\"4\"/><circle cx=\"210\" cy=\"248\" r=\"24\" fill=\"#f5a623\" stroke=\"#c77d0a\" stroke-width=\"4\"/><circle cx=\"600\" cy=\"240\" r=\"26\" fill=\"#f5a623\" stroke=\"#c77d0a\" stroke-width=\"4\"/><circle cx=\"640\" cy=\"252\" r=\"22\" fill=\"#f5a623\" stroke=\"#c77d0a\" stroke-width=\"4\"/><rect x=\"130\" y=\"190\" width=\"30\" height=\"60\" rx=\"6\" fill=\"#0e4d52\" fill-opacity=\".85\"/><rect x=\"130\" y=\"160\" width=\"30\" height=\"90\" rx=\"6\" fill=\"#0e4d52\" fill-opacity=\".85\"/><rect x=\"130\" y=\"175\" width=\"30\" height=\"75\" rx=\"6\" fill=\"#0e4d52\" fill-opacity=\".85\"/><rect x=\"130\" y=\"130\" width=\"30\" height=\"120\" rx=\"6\" fill=\"#0e4d52\" fill-opacity=\".85\"/><rect x=\"130\" y=\"100\" width=\"30\" height=\"150\" rx=\"6\" fill=\"#0e4d52\" fill-opacity=\".85\"/></svg>"),
+    community: svgUri("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 300\"><rect width=\"800\" height=\"300\" fill=\"#0b3d41\"/><line x1=\"120\" y1=\"120\" x2=\"260\" y2=\"120\" stroke=\"#7fd6cc\" stroke-opacity=\".35\" stroke-width=\"2\" stroke-dasharray=\"6 8\"/><line x1=\"260\" y1=\"120\" x2=\"400\" y2=\"120\" stroke=\"#7fd6cc\" stroke-opacity=\".35\" stroke-width=\"2\" stroke-dasharray=\"6 8\"/><line x1=\"400\" y1=\"120\" x2=\"540\" y2=\"120\" stroke=\"#7fd6cc\" stroke-opacity=\".35\" stroke-width=\"2\" stroke-dasharray=\"6 8\"/><line x1=\"540\" y1=\"120\" x2=\"680\" y2=\"120\" stroke=\"#7fd6cc\" stroke-opacity=\".35\" stroke-width=\"2\" stroke-dasharray=\"6 8\"/><path d=\"M48 300 Q48 170 120 170 Q192 170 192 300 Z\" fill=\"#f5a623\"/><circle cx=\"120\" cy=\"120\" r=\"36\" fill=\"#f5a623\"/><path d=\"M188 300 Q188 170 260 170 Q332 170 332 300 Z\" fill=\"#7fd6cc\"/><circle cx=\"260\" cy=\"120\" r=\"36\" fill=\"#7fd6cc\"/><path d=\"M328 300 Q328 170 400 170 Q472 170 472 300 Z\" fill=\"#ffffff\"/><circle cx=\"400\" cy=\"120\" r=\"36\" fill=\"#ffffff\"/><path d=\"M468 300 Q468 170 540 170 Q612 170 612 300 Z\" fill=\"#e77b5f\"/><circle cx=\"540\" cy=\"120\" r=\"36\" fill=\"#e77b5f\"/><path d=\"M608 300 Q608 170 680 170 Q752 170 752 300 Z\" fill=\"#ffbe4d\"/><circle cx=\"680\" cy=\"120\" r=\"36\" fill=\"#ffbe4d\"/></svg>")
+  };
+  function initials(n) { return n.split(' ').map(function (w) { return w.charAt(0); }).slice(0, 2).join(''); }
+
+  /* ---------- state ---------- */
+  function def() { return { profile: null, lang: 'en', applied: {}, sessions: [], products: [], channels: { haat: true }, posts: JSON.parse(JSON.stringify(SEED_POSTS)), liked: {}, joined: false, filter: 'All', idea: '', checks: {}, pitch: { customer: '', ask: '10', use: 'Working capital' }, role: null, inv: null, short: {} }; }
+  var S = def();
+  try { var raw = localStorage.getItem('nexora-v1'); if (raw) S = Object.assign(def(), JSON.parse(raw)); } catch (e) {}
+  var ui = { editing: false, openSlots: null, openReply: null, draft: { prod: '', price: '', post: '', tag: 'Funding', reply: '', idea: null }, tool: 'ready', calc: { p: 500000, r: 11, n: 36, f: 40000, price: 120, v: 70 }, pickRole: false, editInv: false, invDraft: null, dl: { sector: 'All sectors', stage: 'All stages', strong: false }, an: { sector: 'All sectors', stage: 'All stages', state: 'All states', a: 'Food processing', b: 'Handicrafts and textiles' } };
+  function save() { try { localStorage.setItem('nexora-v1', JSON.stringify(S)); } catch (e) {} }
+  function t(k) { return (T[S.lang] || T.en)[k] || T.en[k]; }
+  var toastTimer;
+  function toast(msg) { var el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.hidden = true; }, 2200); }
+
+  /* ---------- icons ---------- */
+  var IC = {
+    matches: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    mentors: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    market: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+    progress: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    community: '<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>',
+    check: '<path d="M20 6L9 17l-5-5"/>',
+    toolkit: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    deals: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+    shortlist: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+    invprofile: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    overview: '<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
+    explore: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+    compare: '<path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"/>'
+  };
+  function ic(n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[n] + '</svg>'; }
+
+  /* ---------- matching ---------- */
+  function scoreFunding(o, p) {
+    var s = 50, why = [], bad = null;
+    if (o.sectors === 'any') { s += 10; why.push('Open to all sectors'); }
+    else if (o.sectors.indexOf(p.sector) >= 0) { s += 25; why.push('Fits ' + p.sector.toLowerCase()); }
+    else { s -= 15; bad = 'Aimed at other sectors'; }
+    if (o.stages.indexOf(p.stage) >= 0) { s += 15; why.push('Suits ' + p.stage.toLowerCase() + ' stage'); } else { s -= 10; if (!bad) bad = 'Other business stage'; }
+    if (o.states === 'all') { s += 5; why.push('Available in ' + p.state); }
+    else if (o.states.indexOf(p.state) >= 0) { s += 10; why.push('Offered in ' + p.state); }
+    else { s -= 15; bad = 'Not offered in ' + p.state; }
+    return { o: o, score: Math.max(30, Math.min(98, s)), why: why, bad: bad };
+  }
+  function scoreMentor(m, p) {
+    var s = 55, why = [];
+    if (m.sectors.indexOf(p.sector) >= 0 && m.sectors.length < SECTORS.length) { s += 28; why.push('Knows ' + p.sector.toLowerCase()); }
+    else if (m.sectors.length === SECTORS.length) { s += 12; why.push('Helps with funding applications'); }
+    if (m.langs.indexOf(S.lang) >= 0) { s += 12; why.push('Speaks ' + { en: 'English', hi: 'Hindi', ta: 'Tamil' }[S.lang]); }
+    return { m: m, score: Math.min(98, s), why: why };
+  }
+  var LANGNAME = { en: 'English', hi: 'Hindi', ta: 'Tamil', };
+  function langs(m) { return m.langs.map(function (l) { return LANGNAME[l]; }).join(', '); }
+
+  /* ---------- AI match: founder's idea to sectors to investors ---------- */
+  function detectThemes(text) {
+    var lower = String(text).toLowerCase(), out = [];
+    Object.keys(THEMES).forEach(function (name) {
+      var hits = [];
+      THEMES[name].forEach(function (kw) {
+        var re = kw.slice(-1) === '*' ? new RegExp('\\b' + kw.slice(0, -1) + '\\w*') : new RegExp('\\b' + kw + '\\b');
+        if (re.test(lower)) hits.push(kw.replace('*', ''));
+      });
+      if (hits.length) out.push({ name: name, hits: hits });
+    });
+    return out;
+  }
+  function inrLakh(l) { return l >= 100 ? '₹' + (l / 100) + ' crore' : '₹' + l + ' lakh'; }
+  var SECTOR_RANGE = { 'Food processing': [10, 50], 'Handicrafts and textiles': [5, 30], 'Agri-business': [25, 150], 'Retail and e-commerce': [10, 60], 'Education and skilling': [15, 80], 'Health and wellness': [25, 120], 'Technology services': [20, 100], 'Beauty and personal care': [10, 60], 'General': [5, 25] };
+  var STOP = ['the', 'and', 'for', 'with', 'want', 'sell', 'sells', 'selling', 'make', 'makes', 'making', 'online', 'business', 'start', 'starting', 'from', 'that', 'this', 'have', 'will', 'into', 'about', 'local', 'people', 'customers', 'good', 'great', 'very', 'also', 'some', 'more', 'best', 'just', 'like', 'idea', 'product', 'products', 'service', 'services', 'shop', 'store', 'home', 'their', 'them', 'they', 'where', 'what', 'when', 'which', 'want', 'need', 'help', 'build', 'create', 'using', 'uses'];
+  function ideaTerms(text) {
+    var out = [];
+    String(text).toLowerCase().split(/[^a-z]+/).forEach(function (w) {
+      if (w.length >= 4 && STOP.indexOf(w) < 0 && out.indexOf(w) < 0) out.push(w);
+    });
+    return out;
+  }
+  function cap(w) { return w.charAt(0).toUpperCase() + w.slice(1); }
+  /* Builds sample investors from the founder's own words. Nothing comes from a fixed investor list. */
+  function matchInvestors(text) {
+    var themes = detectThemes(text);
+    if (!themes.length) themes = [{ name: 'General', hits: [] }];
+    var primary = themes[0].name, range = SECTOR_RANGE[primary];
+    var hits = [];
+    themes.forEach(function (th) { th.hits.forEach(function (h) { if (hits.indexOf(h) < 0) hits.push(h); }); });
+    var terms = hits.concat(ideaTerms(text).filter(function (w) { return hits.indexOf(w) < 0; })).slice(0, 3);
+    var t1 = terms[0] ? cap(terms[0]) : cap(primary.split(' ')[0]);
+    var t2 = terms[1] ? cap(terms[1]) : 'Growth';
+    var focus = 'Founders building ' + (terms.length ? terms.join(', ') : primary.toLowerCase()) + ' businesses';
+    var templates = [
+      { name: t1 + ' Ventures', kind: 'Venture fund', stages: ['Early revenue', 'Growing'], min: range[0] * 2, max: range[1] * 2 },
+      { name: t2 + ' Angels Network', kind: 'Angel group', stages: ['Idea', 'Early revenue'], min: range[0], max: range[1] },
+      { name: t1 + ' Seed Fund', kind: 'Seed fund', stages: ['Idea', 'Early revenue'], min: range[0], max: range[1] },
+      { name: t2 + ' Impact Collective', kind: 'Impact fund', stages: ['Early revenue', 'Growing'], min: Math.round(range[0] * 0.8), max: Math.round(range[1] * 1.2) }
+    ];
+    var matched = templates.map(function (tp, i) {
+      var stageHit = !!(S.profile && tp.stages.indexOf(S.profile.stage) >= 0);
+      return { inv: { id: 'g' + i, name: tp.name, kind: tp.kind, focus: focus, stages: tp.stages, min: tp.min, max: tp.max }, score: Math.min(95, 80 - i * 5 + (stageHit ? 10 : 0)), hits: hits.length ? hits.slice(0, 3) : terms, stageHit: stageHit };
+    });
+    return { themes: themes, matched: matched };
+  }
+  function aiPanel() {
+    var idea = S.idea || '', val = ui.draft.idea == null ? idea : ui.draft.idea;
+    var html = '<section class="card stack hero"><img class="art" alt="" src="' + IMG.hero + '"><div><p class="label">AI match</p><h2 style="margin-top:4px">Describe your business idea</h2>' +
+      '<p class="muted small" style="margin-top:4px">Say what you make or do, and who buys it. We list the investors and funding that fit that idea.</p></div>' +
+      '<form class="stack" id="idea-form"><label for="idea-text" class="small" style="font-weight:600">Your idea</label>' +
+      '<textarea id="idea-text" required placeholder="Example: I make organic millet cookies and want to sell them online to schools and offices.">' + esc(val) + '</textarea>' +
+      '<div><button class="btn" type="submit">Find investors</button></div></form>';
+    if (!idea) return html + '</section>';
+    var r = matchInvestors(idea);
+    html += '<div><p class="label">We read your idea as</p><div class="chips" style="margin-top:6px">' + r.themes.map(function (th) { return '<span class="pill">' + esc(th.name) + '</span>'; }).join('') + '</div></div></section>';
+    html += '<h3>Investors for your idea</h3>';
+    r.matched.forEach(function (x) {
+      var inv = x.inv;
+      html += '<article class="card stack"><div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><div class="grow"><h3>' + esc(inv.name) + '</h3><p class="muted small">' + esc(inv.kind) + ' · ' + esc(inv.focus) + '</p></div>' +
+        '<div class="score" style="--p:' + x.score + '" role="img" aria-label="' + x.score + ' percent fit"><b>' + x.score + '%</b></div></div>' +
+        '<div class="inv-amt">' + inrLakh(inv.min) + ' to ' + inrLakh(inv.max) + '</div>' +
+        '<p class="small muted">Best for: ' + esc(inv.stages.join(', ').toLowerCase()) + ' businesses</p>' +
+        '<div class="chips"><span class="pill good">Matched on ' + esc(x.hits.join(', ')) + '</span>' + (x.stageHit ? '<span class="pill good">Suits ' + esc(S.profile.stage.toLowerCase()) + ' stage</span>' : '') + '<span class="pill accent">Sample investor</span></div></article>';
+    });
+    return html + '<p class="note">Investor names and amounts are sample names created from your idea for this prototype. They are not real firms or commitments.</p>';
+  }
+
+  /* ---------- derived progress ---------- */
+  function milestones() {
+    var a = Object.keys(S.applied).length;
+    return [
+      { k: 'Profile created', on: !!S.profile },
+      { k: 'First funding application', on: a > 0 },
+      { k: 'First mentor call booked', on: S.sessions.length > 0 },
+      { k: 'First product listed', on: S.products.length > 0 },
+      { k: 'Extra sales channel switched on', on: Object.keys(S.channels).filter(function (c) { return S.channels[c] && c !== 'haat'; }).length > 0 },
+      { k: 'Joined a community discussion', on: !!S.joined },
+      { k: 'Funding readiness at 70% or more', on: readiness().score >= 70 }
+    ];
+  }
+
+  /* ---------- views ---------- */
+  function opts(list, cur) { return list.map(function (x) { return '<option' + (x === cur ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join(''); }
+
+  function vWelcome() {
+    var p = S.profile || { name: 'Meena', biz: "Meena's Millets", sector: 'Food processing', stage: 'Early revenue', state: 'Tamil Nadu' };
+    return '<section class="card stack hero"><div><h2>' + (S.profile ? 'Edit your profile' : 'Welcome to Nexora') + '</h2>' +
+      '<p class="muted" style="margin-top:6px">One login for funding, mentors, customers and growth. Tell us about your business and we match everything to it.</p></div>' +
+      (S.profile ? '' : '<p class="note">These are example details. Replace them with your own.</p>') +
+      '<form class="stack" id="profile-form">' +
+      '<label for="f-name">Your name<input type="text" id="f-name" required value="' + esc(p.name) + '"></label>' +
+      '<label for="f-biz">Business name<input type="text" id="f-biz" required value="' + esc(p.biz) + '"></label>' +
+      '<label for="f-sector">Sector<select id="f-sector">' + opts(SECTORS, p.sector) + '</select></label>' +
+      '<label for="f-stage">Business stage<select id="f-stage">' + opts(STAGES, p.stage) + '</select></label>' +
+      '<label for="f-state">State<select id="f-state">' + opts(STATES, p.state) + '</select></label>' +
+      '<button class="btn" type="submit">' + (S.profile ? 'Save changes' : t('create')) + '</button></form></section>';
+  }
+
+  function vMatches() {
+    var p = S.profile;
+    var list = FUNDING.map(function (o) { return scoreFunding(o, p); }).sort(function (a, b) { return b.score - a.score; });
+    var html = '<section class="card"><div class="row between"><div class="grow"><p class="label">' + t('hello') + ', ' + esc(p.name) + '</p><h2>' + esc(p.biz) + '</h2>' +
+      '<p class="muted small" style="margin-top:4px">' + esc(p.sector) + ' · ' + esc(p.stage) + ' · ' + esc(p.state) + '</p></div>' +
+      '<button class="btn ghost small" data-act="edit">Edit</button></div></section>' +
+      aiPanel() + readyBanner() + '<h3>' + t('best') + '</h3>';
+    list.forEach(function (r) {
+      var o = r.o, on = !!S.applied[o.id];
+      html += '<article class="card stack"><div class="row" style="align-items:flex-start;flex-wrap:nowrap">' +
+        '<div class="score" style="--p:' + r.score + '" role="img" aria-label="' + r.score + ' percent match"><b>' + r.score + '%</b></div>' +
+        '<div class="grow"><h3>' + esc(o.name) + '</h3><p class="muted small">' + esc(o.body) + '</p></div></div>' +
+        '<div class="row"><span class="pill">' + esc(o.type) + '</span><span class="amount">' + esc(o.amount) + '</span>' + (o.sample ? '<span class="pill accent">Sample listing</span>' : '') + '</div>' +
+        '<p class="small">' + esc(o.desc) + '</p>' +
+        '<div class="chips">' + r.why.map(function (w) { return '<span class="pill good">' + esc(w) + '</span>'; }).join('') + (r.bad ? '<span class="pill warn">' + esc(r.bad) + '</span>' : '') + '</div>' +
+        '<div class="row"><button class="btn' + (on ? ' ghost' : '') + '" data-act="apply" data-id="' + o.id + '">' + (on ? t('withdraw') : t('apply')) + '</button>' + (on ? '<span class="pill good">' + t('applied') + '</span>' : '') + '</div></article>';
+    });
+    return html + '<p class="note">Scheme details are summaries for this prototype. Confirm eligibility and amounts on the official portal before you apply.</p>';
+  }
+
+  function vMentors() {
+    var p = S.profile;
+    var list = MENTORS.map(function (m) { return scoreMentor(m, p); }).sort(function (a, b) { return b.score - a.score; });
+    var html = '<h2>' + t('mentorsHead') + '</h2><div class="grid2">';
+    list.forEach(function (r) {
+      var m = r.m, s = S.sessions.filter(function (x) { return x.id === m.id; })[0];
+      html += '<article class="card stack"><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div class="score" style="--p:' + r.score + '" role="img" aria-label="' + r.score + ' percent match"><b>' + r.score + '%</b></div>' +
+        '<div class="avatar" aria-hidden="true">' + esc(initials(m.name)) + '</div><div class="grow"><h3>' + esc(m.name) + '</h3><p class="muted small">' + esc(m.role) + '</p></div></div>' +
+        '<div class="chips"><span class="pill good">' + ic('check').replace('<svg', '<svg width="12" height="12"') + ' Verified</span><span class="pill">' + esc(langs(m)) + '</span></div>' +
+        '<div class="chips">' + r.why.map(function (w) { return '<span class="pill accent">' + esc(w) + '</span>'; }).join('') + '</div>';
+      if (s) {
+        html += '<div class="row"><span class="pill good">' + t('booked') + ': ' + esc(s.slot) + '</span><button class="btn ghost small" data-act="cancel" data-id="' + m.id + '">Cancel</button></div>';
+      } else if (ui.openSlots === m.id) {
+        html += '<p class="small muted">Pick a time this week</p><div class="slots">' + m.slots.map(function (sl) { return '<button class="chip" data-act="slot" data-id="' + m.id + '" data-slot="' + esc(sl) + '">' + esc(sl) + '</button>'; }).join('') + '</div>';
+      } else {
+        html += '<div><button class="btn" data-act="open-slots" data-id="' + m.id + '">' + t('book') + '</button></div>';
+      }
+      html += '</article>';
+    });
+    return html + '</div><p class="note">Mentor profiles are sample data for this prototype.</p>';
+  }
+
+  function vMarket() {
+    var on = CHANNELS.filter(function (c) { return c.fixed || S.channels[c.id]; });
+    var html = '<img class="art" alt="" src="' + IMG.market + '"><h2>' + t('marketHead') + '</h2>' +
+      '<section class="card stack"><h3>Your products</h3>' +
+      '<form class="stack" id="prod-form"><div class="row" style="align-items:flex-end;flex-wrap:wrap">' +
+      '<label class="grow" for="p-name" style="display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:14px;min-width:160px">Product<input type="text" id="p-name" required placeholder="Foxtail millet cookies, 250 g" value="' + esc(ui.draft.prod) + '"></label>' +
+      '<label for="p-price" style="display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:14px;width:110px">Price (₹)<input type="number" id="p-price" min="1" required placeholder="120" value="' + esc(ui.draft.price) + '"></label>' +
+      '<button class="btn" type="submit">' + t('list') + '</button></div></form>';
+    if (!S.products.length) html += '<p class="muted small">Nothing listed yet. Add your first product above.</p>';
+    S.products.forEach(function (x) {
+      html += '<div class="row between" style="border-top:1px solid var(--line);padding-top:10px"><div class="grow"><b>' + esc(x.name) + '</b><div class="muted small">₹' + esc(x.price) + ' · live on ' + on.length + ' channel' + (on.length > 1 ? 's' : '') + '</div></div>' +
+        '<button class="btn ghost small" data-act="rm-prod" data-id="' + x.id + '">Remove</button></div>';
+    });
+    html += '</section><section class="card stack"><h3>Where customers find you</h3>';
+    CHANNELS.forEach(function (c) {
+      var isOn = c.fixed || !!S.channels[c.id];
+      html += '<div class="row between"><div class="grow"><b>' + esc(c.name) + '</b><div class="muted small">Reach: ' + esc(c.reach) + '</div></div>' +
+        (c.fixed ? '<span class="pill good">Always on</span>' : '<button class="chip" aria-pressed="' + isOn + '" data-act="channel" data-id="' + c.id + '">' + (isOn ? 'On' : 'Off') + '</button>') + '</div>';
+    });
+    return html + '<p class="note">Channel connections are simulated in this prototype.</p></section>';
+  }
+
+  function vProgress() {
+    var ms = milestones(), done = ms.filter(function (m) { return m.on; }).length, pct = Math.round(done / ms.length * 100);
+    var C = 2 * Math.PI * 40, off = C * (1 - done / ms.length);
+    var ids = Object.keys(S.applied);
+    var chOn = Object.keys(S.channels).filter(function (c) { return S.channels[c]; }).length + 1;
+    var html = '<img class="art" alt="" src="' + IMG.sprout + '"><h2>' + t('progHead') + '</h2><section class="card"><div class="row" style="flex-wrap:nowrap">' +
+      '<svg class="ring" viewBox="0 0 100 100" role="img" aria-label="' + pct + ' percent of milestones done"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="50" cy="50" r="40" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="57" text-anchor="middle">' + pct + '%</text></svg>' +
+      '<div class="grow"><h3>' + done + ' of ' + ms.length + ' milestones</h3><p class="muted small">Each step you take on Nexora checks one off.</p></div></div></section>' +
+      '<div class="stats"><div class="card stat"><b>' + ids.length + '</b><span class="muted small">Applications</span></div><div class="card stat"><b>' + S.sessions.length + '</b><span class="muted small">Mentor calls</span></div><div class="card stat"><b>' + S.products.length + '</b><span class="muted small">Products listed</span></div><div class="card stat"><b>' + chOn + '</b><span class="muted small">Sales channels</span></div></div>' +
+      '<section class="card"><h3 style="margin-bottom:6px">Milestones</h3>' + ms.map(function (m) { return '<div class="ms"><span class="dot' + (m.on ? ' on' : '') + '">' + (m.on ? ic('check') : '') + '</span><span' + (m.on ? '' : ' class="muted"') + '>' + esc(m.k) + '</span></div>'; }).join('') + '</section>' +
+      '<section class="card stack"><h3>Applications</h3>' + (ids.length ? ids.map(function (id) { var o = FUNDING.filter(function (f) { return f.id === id; })[0]; return '<div class="row between"><div class="grow"><b>' + esc(o.name) + '</b><div class="muted small">' + esc(o.amount) + '</div></div><span class="pill warn">In progress</span></div>'; }).join('') : '<p class="muted small">No applications yet. Open Matches to start one.</p>') + '</section>' +
+      '<section class="card stack"><h3>Upcoming mentor calls</h3>' + (S.sessions.length ? S.sessions.map(function (s) { var m = MENTORS.filter(function (x) { return x.id === s.id; })[0]; return '<div class="row between"><b>' + esc(m.name) + '</b><span class="pill good">' + esc(s.slot) + '</span></div>'; }).join('') : '<p class="muted small">No calls booked. Open Mentors to pick a time.</p>') + '</section>';
+    return html;
+  }
+
+  function vCommunity() {
+    var html = '<img class="art" alt="" src="' + IMG.community + '"><h2>' + t('commHead') + '</h2><section class="card"><form class="stack" id="post-form">' +
+      '<label for="c-text" style="font-weight:600;font-size:14px">Ask a question or share what worked</label>' +
+      '<textarea id="c-text" required placeholder="What would you like to ask other founders?">' + esc(ui.draft.post) + '</textarea>' +
+      '<div class="row"><select id="c-tag" style="width:auto">' + opts(TAGS, ui.draft.tag) + '</select><button class="btn" type="submit">' + t('post') + '</button></div></form></section>' +
+      '<div class="chips">' + ['All'].concat(TAGS).map(function (x) { return '<button class="chip" aria-pressed="' + (S.filter === x) + '" data-act="filter" data-id="' + x + '">' + x + '</button>'; }).join('') + '</div>';
+    S.posts.filter(function (p) { return S.filter === 'All' || p.tag === S.filter; }).forEach(function (p) {
+      html += '<article class="card stack post"><div class="row between"><b>' + esc(p.author) + '</b><span class="pill">' + esc(p.tag) + '</span></div><p>' + esc(p.text) + '</p>' +
+        p.replies.map(function (r) { return '<div class="reply small"><b>' + esc(r.author) + '</b><br>' + esc(r.text) + '</div>'; }).join('') +
+        '<div class="row"><button class="chip" aria-pressed="' + !!S.liked[p.id] + '" data-act="like" data-id="' + p.id + '">Helpful · ' + p.likes + '</button><button class="chip" data-act="open-reply" data-id="' + p.id + '">Reply (' + p.replies.length + ')</button></div>' +
+        (ui.openReply === p.id ? '<form class="row reply-form" data-id="' + p.id + '" style="flex-wrap:nowrap"><input type="text" id="r-text" required aria-label="Your reply" placeholder="Write a reply" value="' + esc(ui.draft.reply) + '"><button class="btn small" type="submit">Send</button></form>' : '') + '</article>';
+    });
+    return html + '<p class="note">Sample discussions from fictional founders, for this prototype.</p>';
+  }
+
+  /* ---------- toolkit: readiness, pitch builder, calculators, guides ---------- */
+  var READY = [
+    { id: 'udyam', k: 'Udyam registration', w: 15, tip: 'Free and online. It proves your business exists and opens many schemes.', link: 'https://udyamregistration.gov.in/', linkText: 'Open the Udyam portal' },
+    { id: 'pan', k: 'PAN card', w: 10, tip: 'Banks ask for a PAN on every business loan.' },
+    { id: 'aadhaar', k: 'Aadhaar linked to your mobile', w: 10, tip: 'Needed for Udyam and for most online applications.' },
+    { id: 'bank', k: 'Business bank account in regular use', w: 15, tip: 'Lenders read your statements to judge your cash flow.' },
+    { id: 'plan', k: 'One-page business plan', w: 15, tip: 'Use the Pitch tab to draft it in a minute.' },
+    { id: 'sales', k: 'Sales record for the last 3 months', w: 15, tip: 'A notebook or sheet is enough. Keep dates and amounts.' },
+    { id: 'gst', k: 'GST registration, if you cross the limit', w: 10, tip: 'Check the current turnover limit for your state and your goods or services.', link: 'https://www.gst.gov.in/', linkText: 'Open the GST portal' },
+    { id: 'docs', k: 'ID and address proofs scanned', w: 10, tip: 'Keep clear PDF or photo copies ready to upload.' }
+  ];
+  function readiness() {
+    var score = 0, next = null;
+    READY.forEach(function (r) { if (S.checks[r.id]) score += r.w; else if (!next || r.w > next.w) next = r; });
+    return { score: score, next: next };
+  }
+  function tier(sc) { return sc >= 70 ? ['Ready to apply', 'good'] : sc >= 40 ? ['Almost ready', 'warn'] : ['Getting started', 'accent']; }
+  function money(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+  var USES = {
+    'Working capital': 'stock, raw material and day-to-day costs while sales grow',
+    'Equipment': 'machines and tools that raise output and quality',
+    'Marketing and sales': 'reaching new customers online and in nearby towns',
+    'Hiring and training': 'skilled staff and training so the business runs without bottlenecks'
+  };
+  function pitchText() {
+    var p = S.profile, pt = S.pitch;
+    if (!p) return '';
+    var ask = Number(pt.ask) > 0 ? inrLakh(Number(pt.ask)) : '[amount]';
+    return [
+      p.biz + ' | Pitch summary', '',
+      'Founder: ' + p.name + ', ' + p.state,
+      'Sector and stage: ' + p.sector + ', ' + p.stage.toLowerCase() + ' stage', '',
+      'What we do: ' + (S.idea || '[describe your idea on the Matches tab]'),
+      'Who buys it: ' + (pt.customer || '[add your customers]'), '',
+      'The ask: ' + ask + ' for ' + pt.use.toLowerCase(),
+      'Where the money goes: ' + USES[pt.use], '',
+      'Next step: a 20-minute call to walk through the numbers and plans.'
+    ].join('\n');
+  }
+  function copyText() {
+    var txt = pitchText();
+    function fallback() { var ta = $('#pitch-out'); if (ta) { ta.focus(); ta.select(); } toast('Text selected. Use your copy option.'); }
+    try { navigator.clipboard.writeText(txt).then(function () { toast('Pitch copied'); }, fallback); } catch (e) { fallback(); }
+  }
+  function emiHtml() {
+    var c = ui.calc, P = Number(c.p), yr = Number(c.r), n = Math.round(Number(c.n));
+    if (!(P > 0) || !(n > 0) || !(yr >= 0)) return '<p class="muted small">Enter a loan amount, a yearly interest rate and the number of months.</p>';
+    var r = yr / 1200, emi = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+    var total = emi * n, interest = total - P, pct = Math.round(P / total * 100);
+    return '<div class="stack" style="gap:10px"><div><p class="label">Monthly instalment</p><div class="inv-amt">' + money(emi) + '</div></div>' +
+      '<div class="split" role="img" aria-label="' + pct + ' percent principal, ' + (100 - pct) + ' percent interest"><span style="width:' + pct + '%"></span></div>' +
+      '<div class="row between small"><span>Principal ' + money(P) + '</span><span>Interest ' + money(interest) + '</span></div>' +
+      '<p class="small muted">You repay ' + money(total) + ' over ' + n + ' months.</p></div>';
+  }
+  function beHtml() {
+    var c = ui.calc, f = Number(c.f), pr = Number(c.price), v = Number(c.v);
+    if (!(pr > 0) || !(f >= 0) || !(v >= 0)) return '<p class="muted small">Enter your fixed costs, selling price and cost per unit.</p>';
+    if (pr <= v) return '<p><span class="pill warn">Price is below cost</span></p><p class="small muted" style="margin-top:8px">Each unit loses money. Raise the price or cut the cost per unit.</p>';
+    var m = pr - v, units = Math.ceil(f / m);
+    return '<div class="stack" style="gap:10px"><div><p class="label">Break-even</p><div class="inv-amt">' + units.toLocaleString('en-IN') + ' units a month</div></div>' +
+      '<div class="row between small"><span>Profit per unit ' + money(m) + '</span><span>Sales needed ' + money(units * pr) + '</span></div>' +
+      '<p class="small muted">Every unit sold after this point adds ' + money(m) + ' to your profit.</p></div>';
+  }
+  function toolInput(id, el) {
+    if (id === 'pt-customer') S.pitch.customer = el.value;
+    else if (id === 'pt-ask') S.pitch.ask = el.value;
+    else if (id === 'pt-use') S.pitch.use = el.value;
+    else { var key = { 'cl-p': 'p', 'cl-r': 'r', 'cl-n': 'n', 'cl-f': 'f', 'cl-price': 'price', 'cl-v': 'v' }[id]; if (key) ui.calc[key] = el.value; }
+    var out;
+    if (id.indexOf('pt-') === 0) { out = $('#pitch-out'); if (out) out.value = pitchText(); save(); }
+    else if (['cl-p', 'cl-r', 'cl-n'].indexOf(id) >= 0) { out = $('#emi-out'); if (out) out.innerHTML = emiHtml(); }
+    else { out = $('#be-out'); if (out) out.innerHTML = beHtml(); }
+  }
+  function numField(id, label, val, hint) {
+    return '<label for="' + id + '">' + label + '<input type="number" inputmode="decimal" min="0" id="' + id + '" value="' + esc(val) + '"' + (hint ? ' aria-describedby="' + id + '-h"' : '') + '></label>';
+  }
+  function readyBanner() {
+    var r = readiness(), tr = tier(r.score);
+    return '<a class="card row between" href="#toolkit" data-act="tool" data-id="ready" style="flex-wrap:nowrap;text-decoration:none;color:inherit"><div class="grow"><p class="label">Funding readiness</p>' +
+      '<p style="margin-top:4px"><b class="inv-amt" style="font-size:24px">' + r.score + '%</b> <span class="pill ' + tr[1] + '">' + tr[0] + '</span></p>' +
+      '<p class="small muted">' + (r.next ? 'Next: ' + esc(r.next.k) : 'You are ready to apply') + '</p></div><span class="btn small ghost" aria-hidden="true">Open</span></a>';
+  }
+  function vReady() {
+    var r = readiness(), tr = tier(r.score), C = 2 * Math.PI * 40, off = C * (1 - r.score / 100);
+    var html = '<section class="card"><div class="row" style="flex-wrap:nowrap"><svg class="ring" viewBox="0 0 100 100" role="img" aria-label="' + r.score + ' percent ready"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="50" cy="50" r="40" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 50 50)"/><text x="50" y="57" text-anchor="middle">' + r.score + '%</text></svg>' +
+      '<div class="grow stack" style="gap:6px"><h3>Funding readiness</h3><div><span class="pill ' + tr[1] + '">' + tr[0] + '</span></div><p class="small muted">' + (r.next ? 'Next step: ' + esc(r.next.k) + '.' : 'Every item is done. You are ready to apply.') + '</p></div></div></section>' +
+      '<section class="card"><h3 style="margin-bottom:4px">Your checklist</h3><p class="small muted">Tap an item when it is done. Lenders and schemes usually ask for these.</p>';
+    READY.forEach(function (it) {
+      var on = !!S.checks[it.id];
+      html += '<div class="chk-row"><button class="chk" type="button" data-act="check" data-id="' + it.id + '" aria-pressed="' + on + '"><span class="dot' + (on ? ' on' : '') + '">' + (on ? ic('check') : '') + '</span>' +
+        '<span class="grow"><b>' + esc(it.k) + '</b> <span class="pill">+' + it.w + '</span><span class="small muted" style="display:block">' + esc(it.tip) + '</span></span></button>' +
+        (it.link ? '<a class="ext small" href="' + it.link + '" target="_blank" rel="noopener noreferrer">' + esc(it.linkText) + '</a>' : '') + '</div>';
+    });
+    return html + '</section>';
+  }
+  function vPitch() {
+    var pt = S.pitch;
+    return '<section class="card stack"><div><h3>Pitch builder</h3><p class="small muted" style="margin-top:4px">Fill in three details and get a one-page pitch to edit and send to a mentor, a bank or an investor.</p></div>' +
+      '<form class="stack" id="pitch-form">' +
+      '<label for="pt-customer">Who buys from you?<input type="text" id="pt-customer" placeholder="Schools, offices and families in Coimbatore" value="' + esc(pt.customer) + '"></label>' +
+      '<label for="pt-ask">How much do you need (₹ lakh)?<input type="number" inputmode="decimal" min="1" id="pt-ask" value="' + esc(pt.ask) + '"></label>' +
+      '<label for="pt-use">What will the money be used for?<select id="pt-use">' + opts(Object.keys(USES), pt.use) + '</select></label></form>' +
+      '<label for="pitch-out" class="small" style="font-weight:600">Your pitch</label>' +
+      '<textarea id="pitch-out" readonly rows="12" style="min-height:300px">' + esc(pitchText()) + '</textarea>' +
+      '<div><button class="btn" type="button" data-act="copy-pitch">Copy pitch</button></div>' +
+      (S.idea ? '' : '<p class="note">Add your business idea in the AI match box on the Matches tab and the pitch will use it.</p>') + '</section>';
+  }
+  function vCalc() {
+    var c = ui.calc;
+    return '<section class="card stack"><div><h3>Loan instalment</h3><p class="small muted" style="margin-top:4px">See what a loan costs each month before you apply.</p></div>' +
+      '<form class="stack" id="emi-form">' + numField('cl-p', 'Loan amount (₹)', c.p) + numField('cl-r', 'Interest rate (% a year)', c.r) + numField('cl-n', 'Repayment period (months)', c.n) + '</form>' +
+      '<div id="emi-out">' + emiHtml() + '</div></section>' +
+      '<section class="card stack"><div><h3>Break-even point</h3><p class="small muted" style="margin-top:4px">How many units you must sell each month to cover your costs.</p></div>' +
+      '<form class="stack" id="be-form">' + numField('cl-f', 'Fixed costs a month (₹)', c.f) + numField('cl-price', 'Selling price per unit (₹)', c.price) + numField('cl-v', 'Cost to make one unit (₹)', c.v) + '</form>' +
+      '<div id="be-out">' + beHtml() + '</div></section>' +
+      '<p class="note">Estimates only. A lender may add fees, and your own costs will differ.</p>';
+  }
+  function vLearn() {
+    var G = [
+      ['Register your business on Udyam', ['Keep your Aadhaar number and PAN ready.', 'Open the Udyam portal and choose new registration.', 'Enter your business name, address, activity and investment.', 'Submit, then save your Udyam number and certificate.'], 'https://udyamregistration.gov.in/', 'Open the Udyam portal'],
+      ['Open a business bank account', ['Carry your ID proof, address proof and passport photo.', 'Add your Udyam certificate or shop licence if you have one.', 'Ask for a low-charge current or basic business account.', 'Route all sales and expenses through it from day one.']],
+      ['Price your product with a margin', ['Add up what one unit costs: material, labour and packing.', 'Add a share of your monthly fixed costs.', 'Add the profit margin your business needs.', 'Compare with similar products, then test it in the break-even calculator.']],
+      ['Get more from a mentor call', ['Write down your three most important questions.', 'Share your sales numbers for the last 3 months.', 'Ask for one action you can finish this week.', 'Book the next call before this one ends.']]
+    ];
+    return G.map(function (g, i) {
+      return '<details class="card"' + (i === 0 ? ' open' : '') + '><summary>' + esc(g[0]) + '</summary><ol>' + g[1].map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' +
+        (g[2] ? '<p style="margin-top:12px"><a class="ext small" style="margin:0" href="' + g[2] + '" target="_blank" rel="noopener noreferrer">' + esc(g[3]) + '</a></p>' : '') + '</details>';
+    }).join('');
+  }
+  function vToolkit() {
+    var tabs = [['ready', 'Readiness'], ['pitch', 'Pitch'], ['calc', 'Calculators'], ['learn', 'Learn']];
+    return '<h2>Founder toolkit</h2><div class="chips">' + tabs.map(function (x) { return '<button class="chip" type="button" aria-pressed="' + (ui.tool === x[0]) + '" data-act="tool" data-id="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+      { ready: vReady, pitch: vPitch, calc: vCalc, learn: vLearn }[ui.tool]();
+  }
+
+  /* ---------- roles: investor deal flow and analyst insights ---------- */
+  var FD = [
+    'Millet Mirth|Revathi|Tamil Nadu|Food processing|Early revenue|15|70|1.2|Ready-to-cook millet mixes for working families',
+    'Spice Sutra|Shabana|Telangana|Food processing|Growing|40|85|4.5|Small-batch spice blends sold to cafes and homes',
+    'Jaggery Joy|Pushpa|Karnataka|Food processing|Idea|6|40|0|Jaggery-based snacks for school canteens',
+    'Loom and Leaf|Meenakshi|Kerala|Handicrafts and textiles|Growing|25|80|3.1|Handloom home linen with natural dyes',
+    'Block Print Studio|Savita|Rajasthan|Handicrafts and textiles|Early revenue|12|65|1.8|Block-printed kurtas sold through online marketplaces',
+    'Terra Hands|Gauri|West Bengal|Handicrafts and textiles|Idea|5|35|0|Terracotta decor made by a village women collective',
+    'Green Basket|Lakshmi|Maharashtra|Agri-business|Early revenue|30|60|2.4|Farm-to-home vegetable boxes in two cities',
+    'Dairy Dignity|Kamala|Gujarat|Agri-business|Growing|90|90|9.5|Women-run dairy cooperative with a cold chain',
+    'Seed Sisters|Anita|Uttar Pradesh|Agri-business|Idea|10|45|0|Heirloom seed kits for kitchen gardens',
+    'Kirana Connect|Farida|Karnataka|Retail and e-commerce|Early revenue|20|75|3.6|Ordering app for neighbourhood grocery stores',
+    'Saree Square|Neelam|Tamil Nadu|Retail and e-commerce|Growing|45|82|6.2|Online store where weavers sell direct',
+    'Gift Garland|Hema|Telangana|Retail and e-commerce|Idea|8|38|0|Festival gift boxes from local makers',
+    'Tutor Tree|Sangeeta|Maharashtra|Education and skilling|Early revenue|18|68|1.5|Evening maths tuition for first-generation learners',
+    'Skill Sakhi|Rukmini|Tamil Nadu|Education and skilling|Growing|50|88|5.0|Tailoring and digital skills classes for women',
+    'Code Kitchen|Isha|Karnataka|Education and skilling|Idea|12|50|0|Beginner coding classes in regional languages',
+    'Nirogi Clinic|Meera|Kerala|Health and wellness|Growing|70|86|7.8|Community clinic with tele-consults for villages',
+    'Yoga Yatra|Sunita|Rajasthan|Health and wellness|Early revenue|10|62|0.9|Group yoga and wellness plans for offices',
+    'Nutri Nest|Priyanka|West Bengal|Health and wellness|Idea|9|42|0|Pregnancy nutrition kits with local ingredients',
+    'Ledger Lakshmi|Ananya|Karnataka|Technology services|Early revenue|35|72|2.7|Bookkeeping app for micro-businesses',
+    'Clinic Connect|Zoya|Maharashtra|Technology services|Growing|80|91|8.4|Appointment software for small clinics',
+    'Village Voice|Divya|Uttar Pradesh|Technology services|Idea|15|48|0|Voice-based marketplace for sellers who do not read',
+    'Herbal Hue|Rekha|Gujarat|Beauty and personal care|Early revenue|14|66|1.4|Herbal hair oils and soaps made by a home-based team',
+    'Glow Parlour|Parveen|Telangana|Beauty and personal care|Growing|28|78|3.3|Mobile bridal and salon services',
+    'Bloom Balm|Tara|Kerala|Beauty and personal care|Idea|7|40|0|Natural lip and skin balms'
+  ];
+  var FOUNDERS = FD.map(function (r, i) {
+    var x = r.split('|');
+    return { id: 'f' + (i + 1), biz: x[0], name: x[1], state: x[2], sector: x[3], stage: x[4], ask: Number(x[5]), ready: Number(x[6]), sales: Number(x[7]), idea: x[8] };
+  });
+  var CHEQUES = { 'Up to ₹10 lakh': [0, 10], '₹10 to ₹50 lakh': [10, 50], '₹50 lakh to ₹1 crore': [50, 100], 'Above ₹1 crore': [100, 100000] };
+  var ROLES = {
+    entrepreneur: { label: 'Woman entrepreneur', short: 'Founder', views: ['matches', 'mentors', 'market', 'toolkit', 'progress', 'community'] },
+    investor: { label: 'Investor', short: 'Investor', views: ['deals', 'shortlist', 'invprofile'] },
+    analyst: { label: 'Business analyst', short: 'Analyst', views: ['overview', 'explore', 'compare'] }
+  };
+  var STAGE_COL = { 'Idea': 'var(--accent)', 'Early revenue': 'var(--primary)', 'Growing': 'var(--good)', 'Scaling': 'var(--muted)' };
+  function invDraft() {
+    if (!ui.invDraft) {
+      var v = S.inv || {};
+      ui.invDraft = { name: v.name || '', firm: v.firm || '', sectors: (v.sectors || []).slice(), stages: (v.stages || []).slice(), cheque: v.cheque || '₹10 to ₹50 lakh' };
+    }
+    return ui.invDraft;
+  }
+  function fitScore(f, inv) {
+    var sc = 20, why = [], ch = CHEQUES[inv.cheque] || [0, 100000];
+    if (inv.sectors.indexOf(f.sector) >= 0) { sc += 40; why.push('Your sector'); }
+    if (inv.stages.indexOf(f.stage) >= 0) { sc += 20; why.push('Your stage'); }
+    if (f.ask >= ch[0] && f.ask <= ch[1]) { sc += 20; why.push('Ask fits your cheque'); }
+    return { score: Math.min(98, sc), why: why };
+  }
+  function avgOf(list, key) { return list.length ? list.reduce(function (s2, x) { return s2 + x[key]; }, 0) / list.length : 0; }
+  function sumOf(list, key) { return list.reduce(function (s2, x) { return s2 + x[key]; }, 0); }
+  function median(a) { var b = a.slice().sort(function (x, y) { return x - y; }), m = Math.floor(b.length / 2); return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; }
+  function salesText(f) { return f.sales > 0 ? '₹' + f.sales + ' lakh' : 'None yet'; }
+  function founderById(id) { return FOUNDERS.filter(function (x) { return x.id === id; })[0]; }
+  function sel(id, label, list, cur) { return '<label for="' + id + '">' + label + '<select id="' + id + '">' + opts(list, cur) + '</select></label>'; }
+
+  function vRole() {
+    var R = [
+      ['entrepreneur', 'Woman entrepreneur', 'Match your idea with funding, mentors, customers and investors.', 'matches'],
+      ['investor', 'Investor', 'Find women-led businesses that fit your sectors, stage and cheque size.', 'deals'],
+      ['analyst', 'Business analyst', 'Explore sector, stage and state patterns across women-led businesses.', 'overview']
+    ];
+    return '<section class="card stack hero"><img class="art" alt="" src="' + IMG.hero + '"><div><p class="label">Welcome to Nexora</p><h2 style="margin-top:4px">Who are you joining as?</h2>' +
+      '<p class="muted small" style="margin-top:6px">Choose your role. You can switch any time from the top bar.</p></div></section>' +
+      R.map(function (r) {
+        return '<button class="card role-card" type="button" data-act="role" data-id="' + r[0] + '"><span class="role-ic">' + ic(r[3]) + '</span>' +
+          '<span class="grow"><h3>' + r[1] + '</h3><span class="small muted" style="display:block;margin-top:4px">' + r[2] + '</span></span>' + (S.role === r[0] ? '<span class="pill good">Current</span>' : '') + '</button>';
+      }).join('');
+  }
+
+  function vInvSetup() {
+    var d = invDraft();
+    var chip = function (act, x, on) { return '<button class="chip" type="button" data-act="' + act + '" data-id="' + esc(x) + '" aria-pressed="' + on + '">' + esc(x) + '</button>'; };
+    return '<section class="card stack hero"><div><p class="label">Investor profile</p><h2 style="margin-top:4px">' + (S.inv ? 'Edit your profile' : 'Tell us what you invest in') + '</h2>' +
+      '<p class="muted small" style="margin-top:6px">We rank founders by how well they fit your sectors, stage and cheque size.</p></div></section>' +
+      '<section class="card"><form class="stack" id="inv-form">' +
+      '<label for="iv-name">Your name<input type="text" id="iv-name" required value="' + esc(d.name) + '"></label>' +
+      '<label for="iv-firm">Firm or angel network (optional)<input type="text" id="iv-firm" value="' + esc(d.firm) + '"></label>' +
+      '<div class="stack" style="gap:8px"><span class="small" style="font-weight:600">Sectors you invest in</span><div class="chips">' + SECTORS.map(function (x) { return chip('iv-sec', x, d.sectors.indexOf(x) >= 0); }).join('') + '</div></div>' +
+      '<div class="stack" style="gap:8px"><span class="small" style="font-weight:600">Stages you back</span><div class="chips">' + STAGES.map(function (x) { return chip('iv-stage', x, d.stages.indexOf(x) >= 0); }).join('') + '</div></div>' +
+      sel('iv-cheque', 'Typical cheque size', Object.keys(CHEQUES), d.cheque) +
+      '<button class="btn" type="submit">Save and see deals</button></form></section>';
+  }
+
+  function vDeals() {
+    var inv = S.inv, f = ui.dl;
+    var list = FOUNDERS.map(function (x) { var r = fitScore(x, inv); return { f: x, score: r.score, why: r.why }; })
+      .filter(function (r) { return (f.sector === 'All sectors' || r.f.sector === f.sector) && (f.stage === 'All stages' || r.f.stage === f.stage) && (!f.strong || r.score >= 70); })
+      .sort(function (a2, b2) { return b2.score - a2.score || b2.f.ready - a2.f.ready; });
+    var html = '<div><p class="label">Hello, ' + esc(inv.name) + '</p><h2 style="margin-top:4px">Deal flow</h2><p class="muted small" style="margin-top:4px">Founders ranked by fit with your sectors, stage and cheque size.</p></div>' +
+      '<section class="card"><div class="stack">' + sel('dl-sector', 'Sector', ['All sectors'].concat(SECTORS), f.sector) + sel('dl-stage', 'Stage', ['All stages'].concat(STAGES), f.stage) +
+      '<div class="row"><button class="chip" type="button" data-act="dl-strong" aria-pressed="' + f.strong + '">Strong fits only (70% and up)</button><span class="small muted">' + list.length + ' of ' + FOUNDERS.length + ' founders</span></div></div></section>';
+    if (!list.length) html += '<p class="muted">No founders match these filters. Try another sector or stage.</p>';
+    list.forEach(function (r) {
+      var x = r.f, st = S.short[x.id] ? S.short[x.id].status : null, acts;
+      if (st === 'intro') acts = '<span class="pill good">Intro requested</span><button class="btn ghost small" type="button" data-act="deal-remove" data-id="' + x.id + '">Remove</button>';
+      else if (st === 'passed') acts = '<span class="pill warn">Passed</span><button class="btn ghost small" type="button" data-act="deal-remove" data-id="' + x.id + '">Undo</button>';
+      else acts = '<button class="btn" type="button" data-act="deal-intro" data-id="' + x.id + '">Request intro</button><button class="btn ghost" type="button" data-act="deal-save" data-id="' + x.id + '">' + (st === 'saved' ? 'Saved' : 'Save') + '</button>';
+      html += '<article class="card stack"><div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><div class="grow"><h3>' + esc(x.biz) + '</h3><p class="muted small">' + esc(x.name) + ' · ' + esc(x.state) + '</p></div>' +
+        '<div class="score" style="--p:' + r.score + '" role="img" aria-label="' + r.score + ' percent fit"><b>' + r.score + '%</b></div></div>' +
+        '<div class="chips"><span class="pill">' + esc(x.sector) + '</span><span class="pill">' + esc(x.stage) + '</span><span class="pill accent">Sample founder</span></div>' +
+        '<p class="small">' + esc(x.idea) + '</p>' +
+        '<div class="facts"><div><b>' + inrLakh(x.ask) + '</b><span>Asking</span></div><div><b>' + x.ready + '%</b><span>Readiness</span></div><div><b>' + salesText(x) + '</b><span>Sales a month</span></div></div>' +
+        '<div class="chips">' + r.why.map(function (w) { return '<span class="pill good">' + esc(w) + '</span>'; }).join('') + '</div>' +
+        '<div class="row">' + acts + '</div></article>';
+    });
+    return html + '<p class="note">Sample founders for this prototype. They are not real businesses, and intro requests are simulated.</p>';
+  }
+
+  function vShort() {
+    var order = { intro: 0, saved: 1, passed: 2 };
+    var items = Object.keys(S.short).map(function (id) { return { f: founderById(id), st: S.short[id].status }; }).filter(function (r) { return r.f; })
+      .sort(function (a2, b2) { return order[a2.st] - order[b2.st]; });
+    var html = '<h2>Your shortlist</h2>';
+    if (!items.length) return html + '<section class="card stack"><p class="muted">Nothing here yet. Save founders or request intros from Deals and they will appear here.</p><div><a class="btn" href="#deals" style="text-decoration:none;display:inline-block">Open deal flow</a></div></section>';
+    items.forEach(function (r) {
+      var x = r.f, pill = r.st === 'intro' ? '<span class="pill good">Intro requested</span>' : r.st === 'passed' ? '<span class="pill warn">Passed</span>' : '<span class="pill">Saved</span>';
+      var acts = r.st === 'saved' ? '<button class="btn small" type="button" data-act="deal-intro" data-id="' + x.id + '">Request intro</button><button class="btn ghost small" type="button" data-act="deal-pass" data-id="' + x.id + '">Pass</button>' : '';
+      html += '<article class="card stack"><div class="row between"><div class="grow"><h3>' + esc(x.biz) + '</h3><p class="muted small">' + esc(x.name) + ' · ' + esc(x.state) + ' · ' + esc(x.sector) + '</p></div>' + pill + '</div>' +
+        '<div class="facts"><div><b>' + inrLakh(x.ask) + '</b><span>Asking</span></div><div><b>' + x.ready + '%</b><span>Readiness</span></div><div><b>' + salesText(x) + '</b><span>Sales a month</span></div></div>' +
+        '<div class="row">' + acts + '<button class="btn ghost small" type="button" data-act="deal-remove" data-id="' + x.id + '">Remove</button></div></article>';
+    });
+    return html;
+  }
+
+  function vInvProfile() {
+    var v = S.inv, ids = Object.keys(S.short), sh = ids.map(function (id) { return founderById(id); }).filter(Boolean);
+    var intros = ids.filter(function (id) { return S.short[id].status === 'intro'; }).length;
+    return '<section class="card stack"><div class="row" style="flex-wrap:nowrap"><div class="avatar" aria-hidden="true">' + esc(initials(v.name || 'I')) + '</div><div class="grow"><h2 style="font-size:24px">' + esc(v.name) + '</h2><p class="muted small">' + esc(v.firm || 'Independent investor') + '</p></div>' +
+      '<button class="btn ghost small" type="button" data-act="edit-inv">Edit</button></div>' +
+      '<div><p class="label">Sectors</p><div class="chips" style="margin-top:6px">' + v.sectors.map(function (x) { return '<span class="pill">' + esc(x) + '</span>'; }).join('') + '</div></div>' +
+      '<div><p class="label">Stages</p><div class="chips" style="margin-top:6px">' + v.stages.map(function (x) { return '<span class="pill">' + esc(x) + '</span>'; }).join('') + '</div></div>' +
+      '<div><p class="label">Typical cheque</p><p class="inv-amt" style="font-size:22px;margin-top:4px">' + esc(v.cheque) + '</p></div></section>' +
+      '<div class="stats"><div class="card stat"><b>' + ids.length + '</b><span class="muted small">On shortlist</span></div><div class="card stat"><b>' + intros + '</b><span class="muted small">Intros asked</span></div>' +
+      '<div class="card stat"><b style="font-size:clamp(17px,4.8vw,22px);white-space:nowrap">' + inrLakh(sumOf(sh, 'ask')) + '</b><span class="muted small">Total ask</span></div><div class="card stat"><b>' + FOUNDERS.filter(function (x) { return fitScore(x, v).score >= 70; }).length + '</b><span class="muted small">Strong fits</span></div></div>';
+  }
+
+  function filterInput(id, el) {
+    var m = { 'dl-sector': ['dl', 'sector'], 'dl-stage': ['dl', 'stage'], 'an-sector': ['an', 'sector'], 'an-stage': ['an', 'stage'], 'an-state': ['an', 'state'], 'an-a': ['an', 'a'], 'an-b': ['an', 'b'] }[id];
+    if (!m) return;
+    ui[m[0]][m[1]] = el.value; render();
+    var n = $('#' + id); if (n) n.focus();
+  }
+
+  function vOverview() {
+    var L = FOUNDERS, total = sumOf(L, 'ask'), bySec = {}, byState = {}, byStage = {};
+    L.forEach(function (x) { bySec[x.sector] = (bySec[x.sector] || 0) + x.ask; byState[x.state] = (byState[x.state] || 0) + 1; byStage[x.stage] = (byStage[x.stage] || 0) + 1; });
+    var secs = Object.keys(bySec).sort(function (a2, b2) { return bySec[b2] - bySec[a2]; }), max = bySec[secs[0]];
+    var secList = function (sc) { return L.filter(function (x) { return x.sector === sc; }); };
+    var bestReady = SECTORS.slice().sort(function (a2, b2) { return avgOf(secList(b2), 'ready') - avgOf(secList(a2), 'ready'); })[0];
+    var topState = Object.keys(byState).sort(function (a2, b2) { return byState[b2] - byState[a2]; })[0];
+    var ideaPct = Math.round((byStage['Idea'] || 0) / L.length * 100);
+    var html = '<div><p class="label">Business analyst</p><h2 style="margin-top:4px">Market overview</h2><p class="muted small" style="margin-top:4px">Patterns across ' + L.length + ' sample women-led businesses.</p></div>' +
+      '<div class="stats"><div class="card stat"><b>' + L.length + '</b><span class="muted small">Founders</span></div><div class="card stat"><b style="font-size:clamp(17px,4.8vw,22px);white-space:nowrap">' + inrLakh(total) + '</b><span class="muted small">Total ask</span></div>' +
+      '<div class="card stat"><b style="font-size:clamp(17px,4.8vw,22px);white-space:nowrap">' + inrLakh(median(L.map(function (x) { return x.ask; }))) + '</b><span class="muted small">Median ask</span></div><div class="card stat"><b>' + Math.round(avgOf(L, 'ready')) + '%</b><span class="muted small">Avg readiness</span></div></div>' +
+      '<section class="card stack"><h3>Total ask by sector</h3>' +
+      secs.map(function (k) { return '<div class="bar-item"><div class="row between small"><span>' + esc(k) + '</span><b>' + inrLakh(bySec[k]) + '</b></div><div class="bar-track"><span style="width:' + Math.round(bySec[k] / max * 100) + '%"></span></div></div>'; }).join('') + '</section>' +
+      '<section class="card stack"><h3>Stage mix</h3><div class="stagebar" role="img" aria-label="Founders by stage">' +
+      STAGES.filter(function (k) { return byStage[k]; }).map(function (k) { return '<span style="width:' + (byStage[k] / L.length * 100) + '%;background:' + STAGE_COL[k] + '"></span>'; }).join('') + '</div>' +
+      '<div class="legend">' + STAGES.filter(function (k) { return byStage[k]; }).map(function (k) { return '<span><i style="background:' + STAGE_COL[k] + '"></i>' + esc(k) + ' ' + byStage[k] + '</span>'; }).join('') + '</div></section>' +
+      '<section class="card stack"><h3>What stands out</h3>' +
+      [
+        '<b>' + esc(secs[0]) + '</b> has the largest total ask, ' + inrLakh(bySec[secs[0]]) + ' across ' + secList(secs[0]).length + ' founders.',
+        '<b>' + esc(bestReady) + '</b> founders are the most ready for funding, at ' + Math.round(avgOf(secList(bestReady), 'ready')) + '% on average.',
+        '<b>' + esc(topState) + '</b> has the most founders in this sample, ' + byState[topState] + ' of ' + L.length + '.',
+        ideaPct + '% of founders are at idea stage and have no sales yet.'
+      ].map(function (t2) { return '<div class="insight"><span class="dot on" style="background:var(--accent);border-color:var(--accent)"></span><p class="small">' + t2 + '</p></div>'; }).join('') + '</section>' +
+      '<p class="note">Illustrative sample data created for this prototype. These are not real businesses or market statistics.</p>';
+    return html;
+  }
+
+  function exploreList() {
+    var a2 = ui.an;
+    return FOUNDERS.filter(function (x) { return (a2.sector === 'All sectors' || x.sector === a2.sector) && (a2.stage === 'All stages' || x.stage === a2.stage) && (a2.state === 'All states' || x.state === a2.state); });
+  }
+  function csvText(list) {
+    var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
+    return ['Business,Founder,State,Sector,Stage,Ask (INR lakh),Readiness (%),Monthly sales (INR lakh)'].concat(list.map(function (x) { return [q(x.biz), q(x.name), q(x.state), q(x.sector), q(x.stage), x.ask, x.ready, x.sales].join(','); })).join('\n');
+  }
+  function copyCsv() {
+    var txt = csvText(exploreList());
+    function fb() { var ta = $('#csv-out'); if (ta) { ta.focus(); ta.select(); } toast('Text selected. Use your copy option.'); }
+    try { navigator.clipboard.writeText(txt).then(function () { toast('CSV copied'); }, fb); } catch (e) { fb(); }
+  }
+  function vExplore() {
+    var a2 = ui.an, list = exploreList(), states = Object.keys(FOUNDERS.reduce(function (m, x) { m[x.state] = 1; return m; }, {})).sort();
+    var html = '<div><p class="label">Business analyst</p><h2 style="margin-top:4px">Explore the data</h2><p class="muted small" style="margin-top:4px">Filter the sample businesses and copy the result as CSV.</p></div>' +
+      '<section class="card stack">' + sel('an-sector', 'Sector', ['All sectors'].concat(SECTORS), a2.sector) + sel('an-stage', 'Stage', ['All stages'].concat(STAGES), a2.stage) + sel('an-state', 'State', ['All states'].concat(states), a2.state) + '</section>' +
+      '<section class="card stack"><div class="row between"><h3>' + list.length + (list.length === 1 ? ' business' : ' businesses') + '</h3><span class="small muted">Total ask ' + inrLakh(sumOf(list, 'ask')) + ' · Avg readiness ' + Math.round(avgOf(list, 'ready')) + '%</span></div>';
+    if (!list.length) return html + '<p class="muted small">No businesses match these filters.</p></section>';
+    html += '<div class="tbl-wrap"><table class="wide"><thead><tr><th>Business</th><th>State</th><th>Sector</th><th>Stage</th><th class="num">Ask (₹ lakh)</th><th class="num">Ready</th><th class="num">Sales (₹ lakh)</th></tr></thead><tbody>' +
+      list.map(function (x) { return '<tr><td><b>' + esc(x.biz) + '</b></td><td>' + esc(x.state) + '</td><td>' + esc(x.sector) + '</td><td>' + esc(x.stage) + '</td><td class="num">' + x.ask + '</td><td class="num">' + x.ready + '%</td><td class="num">' + x.sales + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+      '<label for="csv-out" class="small" style="font-weight:600">CSV</label><textarea id="csv-out" readonly rows="6" style="min-height:140px;font-size:13px">' + esc(csvText(list)) + '</textarea>' +
+      '<div><button class="btn" type="button" data-act="copy-csv">Copy CSV</button></div></section>';
+    return html;
+  }
+
+  function vCompare() {
+    var a2 = ui.an, st = function (sc) {
+      var l = FOUNDERS.filter(function (x) { return x.sector === sc; }), by = {};
+      l.forEach(function (x) { by[x.state] = (by[x.state] || 0) + 1; });
+      var top = Object.keys(by).sort(function (p1, p2) { return by[p2] - by[p1]; })[0];
+      return { n: l.length, total: sumOf(l, 'ask'), avgAsk: avgOf(l, 'ask'), ready: Math.round(avgOf(l, 'ready')), sales: avgOf(l, 'sales'), top: top || '-' };
+    };
+    var A = st(a2.a), B = st(a2.b);
+    var rows = [['Founders', A.n, B.n], ['Total ask', inrLakh(A.total), inrLakh(B.total)], ['Average ask', inrLakh(Math.round(A.avgAsk * 10) / 10), inrLakh(Math.round(B.avgAsk * 10) / 10)], ['Average readiness', A.ready + '%', B.ready + '%'], ['Average sales a month', '₹' + A.sales.toFixed(1) + ' lakh', '₹' + B.sales.toFixed(1) + ' lakh'], ['Most founders in', A.top, B.top]];
+    var verdict = A.ready === B.ready ? 'Both sectors have the same average readiness.' : '<b>' + esc(A.ready > B.ready ? a2.a : a2.b) + '</b> founders are more ready for funding (' + Math.max(A.ready, B.ready) + '% against ' + Math.min(A.ready, B.ready) + '%).';
+    return '<div><p class="label">Business analyst</p><h2 style="margin-top:4px">Compare sectors</h2><p class="muted small" style="margin-top:4px">Put two sectors side by side.</p></div>' +
+      '<section class="card stack">' + sel('an-a', 'First sector', SECTORS, a2.a) + sel('an-b', 'Second sector', SECTORS, a2.b) + '</section>' +
+      '<section class="card stack"><div class="tbl-wrap"><table><thead><tr><th>Measure</th><th>First</th><th>Second</th></tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td><b>' + esc(r[1]) + '</b></td><td><b>' + esc(r[2]) + '</b></td></tr>'; }).join('') + '</tbody></table></div>' +
+      '<p class="small">' + verdict + '</p></section><p class="note">Illustrative sample data created for this prototype.</p>';
+  }
+
+  /* ---------- render ---------- */
+  var lastKey = null;
+  function view() { var vs = ROLES[S.role].views, h = (location.hash || '').replace('#', ''); return vs.indexOf(h) >= 0 ? h : vs[0]; }
+  function render() {
+    $('#lang').innerHTML = ['en', 'hi', 'ta'].map(function (l) { return '<button data-act="lang" data-id="' + l + '" aria-pressed="' + (S.lang === l) + '">' + { en: 'EN', hi: 'हिं', ta: 'த' }[l] + '</button>'; }).join('');
+    $('#role').innerHTML = S.role && !ui.pickRole ? '<button class="chip role-btn" type="button" data-act="switch-role" aria-label="Switch role, current role ' + esc(ROLES[S.role].label) + '">' + esc(ROLES[S.role].short) + ' ▾</button>' : '';
+    var app = $('#app'), tabs = $('#tabs'), key, html;
+    if (!S.role || ui.pickRole) { key = 'role'; html = vRole(); tabs.hidden = true; }
+    else if (S.role === 'entrepreneur' && (!S.profile || ui.editing)) { key = 'welcome'; html = vWelcome(); tabs.hidden = true; }
+    else if (S.role === 'investor' && (!S.inv || ui.editInv)) { key = 'invsetup'; html = vInvSetup(); tabs.hidden = true; }
+    else {
+      var v = view(); key = S.role + v; tabs.hidden = false;
+      $('#tabs .in').innerHTML = ROLES[S.role].views.map(function (k) { return '<a href="#' + k + '"' + (k === v ? ' aria-current="page"' : '') + '>' + ic(k) + '<span>' + t(k) + '</span></a>'; }).join('');
+      html = { matches: vMatches, mentors: vMentors, market: vMarket, toolkit: vToolkit, progress: vProgress, community: vCommunity, deals: vDeals, shortlist: vShort, invprofile: vInvProfile, overview: vOverview, explore: vExplore, compare: vCompare }[v]();
+    }
+    app.className = key !== lastKey ? 'enter' : ''; lastKey = key;
+    app.innerHTML = html;
+  }
+
+  /* ---------- actions ---------- */
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    var a = b.dataset.act, id = b.dataset.id;
+    if (a === 'copy-pitch') { copyText(); return; }
+    if (a === 'copy-csv') { copyCsv(); return; }
+    if (a === 'lang') { S.lang = id; }
+    else if (a === 'edit') { ui.editing = true; }
+    else if (a === 'apply') { if (S.applied[id]) { delete S.applied[id]; toast('Application withdrawn'); } else { S.applied[id] = true; toast('Application started. Track it under Progress.'); } }
+    else if (a === 'open-slots') { ui.openSlots = id; }
+    else if (a === 'slot') { S.sessions.push({ id: id, slot: b.dataset.slot }); ui.openSlots = null; toast('Call booked for ' + b.dataset.slot); }
+    else if (a === 'cancel') { S.sessions = S.sessions.filter(function (s) { return s.id !== id; }); toast('Call cancelled'); }
+    else if (a === 'rm-prod') { S.products = S.products.filter(function (p) { return p.id !== id; }); }
+    else if (a === 'channel') { S.channels[id] = !S.channels[id]; toast(S.channels[id] ? 'Channel switched on' : 'Channel switched off'); }
+    else if (a === 'filter') { S.filter = id; }
+    else if (a === 'like') { var p = S.posts.filter(function (x) { return x.id === id; })[0]; if (S.liked[id]) { delete S.liked[id]; p.likes--; } else { S.liked[id] = true; p.likes++; } }
+    else if (a === 'open-reply') { ui.openReply = ui.openReply === id ? null : id; }
+    else if (a === 'tool') { ui.tool = id; }
+    else if (a === 'check') { if (S.checks[id]) delete S.checks[id]; else S.checks[id] = true; }
+    else if (a === 'role') { S.role = id; ui.pickRole = false; ui.editing = false; ui.editInv = false; }
+    else if (a === 'switch-role') { ui.pickRole = true; }
+    else if (a === 'iv-sec' || a === 'iv-stage') { var d = invDraft(), arr = a === 'iv-sec' ? d.sectors : d.stages, i = arr.indexOf(id); if (i >= 0) arr.splice(i, 1); else arr.push(id); }
+    else if (a === 'edit-inv') { ui.editInv = true; ui.invDraft = null; }
+    else if (a === 'deal-save') { if (S.short[id]) { delete S.short[id]; toast('Removed from your shortlist'); } else { S.short[id] = { status: 'saved' }; toast('Saved to your shortlist'); } }
+    else if (a === 'deal-intro') { S.short[id] = { status: 'intro' }; toast('Intro requested. This is simulated in the prototype.'); }
+    else if (a === 'deal-pass') { S.short[id] = { status: 'passed' }; }
+    else if (a === 'deal-remove') { delete S.short[id]; }
+    else if (a === 'dl-strong') { ui.dl.strong = !ui.dl.strong; }
+    save(); render();
+    if (a === 'open-reply' && ui.openReply) { var r = $('#r-text'); if (r) r.focus(); }
+  });
+  document.addEventListener('input', function (e) {
+    var id = e.target.id;
+    if (id === 'p-name') ui.draft.prod = e.target.value;
+    else if (id === 'p-price') ui.draft.price = e.target.value;
+    else if (id === 'c-text') ui.draft.post = e.target.value;
+    else if (id === 'c-tag') ui.draft.tag = e.target.value;
+    else if (id === 'r-text') ui.draft.reply = e.target.value;
+    else if (id === 'idea-text') ui.draft.idea = e.target.value;
+    else if (id.indexOf('pt-') === 0 || id.indexOf('cl-') === 0) toolInput(id, e.target);
+    else if (id === 'iv-name') invDraft().name = e.target.value;
+    else if (id === 'iv-firm') invDraft().firm = e.target.value;
+    else if (id === 'iv-cheque') invDraft().cheque = e.target.value;
+    else if (id.indexOf('dl-') === 0 || id.indexOf('an-') === 0) filterInput(id, e.target);
+  });
+  document.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target.id || '';
+    if (f === 'profile-form') {
+      S.profile = { name: $('#f-name').value.trim(), biz: $('#f-biz').value.trim(), sector: $('#f-sector').value, stage: $('#f-stage').value, state: $('#f-state').value };
+      ui.editing = false; toast('Profile saved. Your matches are ready.');
+    } else if (f === 'prod-form') {
+      S.products.push({ id: 'x' + Date.now(), name: ui.draft.prod.trim(), price: ui.draft.price }); ui.draft.prod = ''; ui.draft.price = ''; toast('Product listed');
+    } else if (f === 'post-form') {
+      S.posts.unshift({ id: 'u' + Date.now(), author: S.profile.name + ' (you)', tag: ui.draft.tag, text: ui.draft.post.trim(), likes: 0, replies: [] }); ui.draft.post = ''; S.joined = true; toast('Posted to the community');
+    } else if (e.target.classList.contains('reply-form')) {
+      var pid = e.target.dataset.id, p = S.posts.filter(function (x) { return x.id === pid; })[0];
+      p.replies.push({ author: S.profile.name + ' (you)', text: ui.draft.reply.trim() }); ui.draft.reply = ''; ui.openReply = null; S.joined = true; toast('Reply sent');
+    } else if (f === 'idea-form') {
+      S.idea = $('#idea-text').value.trim();
+      toast(S.idea ? 'Investors updated for your idea' : 'Describe your idea first');
+    } else if (f === 'inv-form') {
+      var dd = invDraft();
+      if (!dd.sectors.length) { toast('Pick at least one sector'); return; }
+      if (!dd.stages.length) { toast('Pick at least one stage'); return; }
+      S.inv = { name: dd.name.trim(), firm: dd.firm.trim(), sectors: dd.sectors.slice(), stages: dd.stages.slice(), cheque: dd.cheque };
+      ui.editInv = false; ui.invDraft = null; toast('Investor profile saved');
+    } else return;
+    save(); render();
+  });
+  window.addEventListener('hashchange', function () { render(); window.scrollTo(0, 0); });
+  render();
+})();
+</script>
+
+</body></html>
